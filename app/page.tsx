@@ -17,8 +17,6 @@ import {
   rerunVisualizations,
   getDatasetHead,
 } from "@/lib/api";
-import { auth, onAuthStateChanged } from "@/lib/firebase";
-import { signOut } from "firebase/auth";
 import {
   Upload,
   LogOut,
@@ -26,6 +24,7 @@ import {
   ChevronLeft,
   ChevronRight,
 } from "lucide-react";
+import { auth, onAuthStateChanged, signOut } from "@/lib/firebase";
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -40,28 +39,43 @@ export default function Home() {
     []
   );
   const [insights, setInsights] = useState<string[]>([]);
-  // State to toggle between login and signup views
+  const [datasetsLoading, setDatasetsLoading] = useState<boolean>(false);
   const [authMode, setAuthMode] = useState<"login" | "signup">("login");
   const [isSidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [selectedDatasetPreview, setSelectedDatasetPreview] = useState<DatasetSummary | null>(null);
 
-  // Subscribe to authentication state changes
+  // Subscribe to Firebase auth state changes
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       setIsAuthenticated(!!currentUser);
       if (!currentUser) {
         localStorage.removeItem("userID");
+        // Clear dashboard state on logout
+        setDatasets([]);
+        setSelectedDataset(null);
+        setVisualizations([]);
+        setInsights([]);
       }
     });
     return () => unsubscribe();
   }, []);
 
+  // Automatically fetch datasets when authenticated
+  useEffect(() => {
+    if (isAuthenticated) {
+      fetchDatasets();
+    }
+  }, [isAuthenticated]);
+
   const fetchDatasets = async () => {
+    setDatasetsLoading(true);
     try {
       const fetchedDatasets = await listDatasets();
       setDatasets(fetchedDatasets);
     } catch (error) {
       console.error("Failed to fetch datasets:", error);
+    } finally {
+      setDatasetsLoading(false);
     }
   };
 
@@ -107,6 +121,11 @@ export default function Home() {
       await signOut(auth);
       localStorage.removeItem("userID");
       setIsAuthenticated(false);
+      // Clear all dashboard state
+      setDatasets([]);
+      setSelectedDataset(null);
+      setVisualizations([]);
+      setInsights([]);
     } catch (error) {
       console.error("Error signing out:", error);
     }
@@ -183,7 +202,17 @@ export default function Home() {
                       onUploadSuccess={() => {
                         fetchDatasets();
                       }}
+                      
                     />
+                    {datasetsLoading ? (
+          <p>Loading datasets...</p>
+        ) : (
+          <DatasetList
+            datasets={datasets}
+            onSelect={handleDatasetSelect}
+            selectedDataset={selectedDataset}
+          />
+        )}
                   </CardContent>
                 </Card>
 
