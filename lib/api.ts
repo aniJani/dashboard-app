@@ -137,3 +137,20 @@ export interface VisualizationResponse {
   image_base64: string;
   description: string | null;
 }
+
+// Add this interface
+export interface DatasetSummary {
+  columns: string[];
+  rows: number;
+  data_types: Record<string, string>;
+  sample: Record<string, Record<number, any>>;
+}
+
+// Add this function
+export async function getDatasetHead(datasetId: string): Promise<DatasetSummary> {
+  const response = await fetch(`${API_BASE_URL}/api/dataset/head?dataset_id=${datasetId}`);
+  if (!response.ok) {
+    throw new Error('Failed to fetch dataset head');
+  }
+  return response.json();
+}
