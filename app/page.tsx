@@ -202,43 +202,34 @@ export default function Home() {
                       onUploadSuccess={() => {
                         fetchDatasets();
                       }}
-                      
                     />
                     {datasetsLoading ? (
-          <p>Loading datasets...</p>
-        ) : (
-          <DatasetList
-            datasets={datasets}
-            onSelect={handleDatasetSelect}
-            selectedDataset={selectedDataset}
-          />
-        )}
+                      <p>Loading datasets...</p>
+                    ) : (
+                      <div className="h-[calc(100vh-500px)] overflow-auto">
+                        <DatasetList
+                          datasets={datasets}
+                          onSelect={handleDatasetSelect}
+                          selectedDataset={selectedDataset}
+                        />
+                      </div>
+                    )}
+
+                    {selectedDataset && (
+                      <div className="h-[200px] overflow-auto mt-4">
+                        <DatasetPreview datasetId={selectedDataset.id} />
+                      </div>
+                    )}
+
+                    <Button
+                      className="w-full mt-4"
+                      variant="outline"
+                      onClick={fetchDatasets}
+                    >
+                      <Upload className="mr-2 h-4 w-4" /> Refresh
+                    </Button>
                   </CardContent>
                 </Card>
-
-                <div className="space-y-4">
-                  <div className="h-[calc(100vh-500px)] overflow-auto">
-                    <DatasetList
-                      datasets={datasets}
-                      onSelect={handleDatasetSelect}
-                      selectedDataset={selectedDataset}
-                    />
-                  </div>
-
-                  {selectedDataset && (
-                    <div className="h-[200px] overflow-auto">
-                      <DatasetPreview datasetId={selectedDataset.id} />
-                    </div>
-                  )}
-
-                  <Button
-                    className="w-full"
-                    variant="outline"
-                    onClick={fetchDatasets}
-                  >
-                    <Upload className="mr-2 h-4 w-4" /> Refresh
-                  </Button>
-                </div>
               </motion.div>
             )}
           </AnimatePresence>
