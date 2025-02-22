@@ -15,8 +15,7 @@ import {
   listDatasets,
   rerunVisualizations,
 } from "@/lib/api";
-import { auth, onAuthStateChanged } from "@/lib/firebase";
-import { signOut } from "firebase/auth";
+import { auth, onAuthStateChanged, signOut } from "@/lib/firebase";
 import { Upload } from "lucide-react";
 import { useEffect, useState } from "react";
 
@@ -26,26 +25,41 @@ export default function Home() {
   const [selectedDataset, setSelectedDataset] = useState<DatasetInfo | null>(null);
   const [visualizations, setVisualizations] = useState<VisualizationResponse[]>([]);
   const [insights, setInsights] = useState<string[]>([]);
-  // State to toggle between login and signup views
+  const [datasetsLoading, setDatasetsLoading] = useState<boolean>(false);
   const [authMode, setAuthMode] = useState<"login" | "signup">("login");
 
-  // Subscribe to authentication state changes
+  // Subscribe to Firebase auth state changes
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       setIsAuthenticated(!!currentUser);
       if (!currentUser) {
         localStorage.removeItem("userID");
+        // Clear dashboard state on logout
+        setDatasets([]);
+        setSelectedDataset(null);
+        setVisualizations([]);
+        setInsights([]);
       }
     });
     return () => unsubscribe();
   }, []);
 
+  // Automatically fetch datasets when authenticated
+  useEffect(() => {
+    if (isAuthenticated) {
+      fetchDatasets();
+    }
+  }, [isAuthenticated]);
+
   const fetchDatasets = async () => {
+    setDatasetsLoading(true);
     try {
       const fetchedDatasets = await listDatasets();
       setDatasets(fetchedDatasets);
     } catch (error) {
       console.error("Failed to fetch datasets:", error);
+    } finally {
+      setDatasetsLoading(false);
     }
   };
 
@@ -54,7 +68,7 @@ export default function Home() {
     try {
       const rerunResults = await rerunVisualizations(dataset.id);
       setVisualizations(rerunResults);
-      setInsights([]); // Clear insights when a new dataset is selected
+      setInsights([]);
     } catch (error) {
       console.error("Failed to rerun visualizations:", error);
     }
@@ -86,6 +100,11 @@ export default function Home() {
       await signOut(auth);
       localStorage.removeItem("userID");
       setIsAuthenticated(false);
+      // Clear all dashboard state
+      setDatasets([]);
+      setSelectedDataset(null);
+      setVisualizations([]);
+      setInsights([]);
     } catch (error) {
       console.error("Error signing out:", error);
     }
@@ -119,16 +138,16 @@ export default function Home() {
           </Button>
         </div>
         {/* Always show the upload component */}
-        <DatasetUpload
-          onUploadSuccess={() => {
-            fetchDatasets();
-          }}
-        />
-        <DatasetList
-          datasets={datasets}
-          onSelect={handleDatasetSelect}
-          selectedDataset={selectedDataset}
-        />
+        <DatasetUpload onUploadSuccess={fetchDatasets} />
+        {datasetsLoading ? (
+          <p>Loading datasets...</p>
+        ) : (
+          <DatasetList
+            datasets={datasets}
+            onSelect={handleDatasetSelect}
+            selectedDataset={selectedDataset}
+          />
+        )}
         <Button className="mt-4 w-full" onClick={fetchDatasets}>
           <Upload className="mr-2 h-4 w-4" /> Refresh Datasets
         </Button>

@@ -5,6 +5,7 @@ import {
     getAuth,
     onAuthStateChanged,
     signInWithEmailAndPassword,
+    signOut,
     User,
 } from "firebase/auth";
 
@@ -25,7 +26,8 @@ export {
     auth,
     createUserWithEmailAndPassword,
     onAuthStateChanged,
-    signInWithEmailAndPassword
+    signInWithEmailAndPassword,
+    signOut
 };
 export type { User };
 
