@@ -87,16 +87,16 @@ const Login: React.FC<LoginProps> = ({ onModeSwitch }) => {
               transition={{ duration: 0.5 }}
               className="relative z-10"
             >
-              <div className="space-y-12 lg:space-y-16">
+              <div className="space-y-6 lg:space-y-8">
                 {/* Header Title */}
-                <h1 className="font-space-grotesk text-5xl sm:text-6xl lg:text-7xl xl:text-8xl font-bold tracking-tight">
+                <h1 className="font-space-grotesk text-5xl sm:text-6xl lg:text-7xl xl:text-8xl font-bold tracking-tight ">
                   <motion.span 
                     className="block bg-gradient-to-r from-[#00caeb] to-[#df3f8b] bg-clip-text text-transparent"
                     initial={{ x: -20, opacity: 0 }}
                     animate={{ x: 0, opacity: 1 }}
                     transition={{ delay: 0.2 }}
                   >
-                    Data
+                    Infolaya
                   </motion.span>
                   <motion.span 
                     className="block bg-gradient-to-r from-[#df3f8b] to-[#060885] bg-clip-text text-transparent"
@@ -106,7 +106,7 @@ const Login: React.FC<LoginProps> = ({ onModeSwitch }) => {
                   >
                     Visualization
                   </motion.span>
-                  <motion.span 
+                 <motion.span 
                     className="block bg-gradient-to-r from-[#060885] to-[#00caeb] bg-clip-text text-transparent"
                     initial={{ x: -20, opacity: 0 }}
                     animate={{ x: 0, opacity: 1 }}
@@ -114,7 +114,8 @@ const Login: React.FC<LoginProps> = ({ onModeSwitch }) => {
                   >
                     Studio
                   </motion.span>
-                </h1>
+                  </h1>
+              
 
                 {/* Mission Statement */}
                 <div className="space-y-6">
@@ -273,7 +274,7 @@ const Login: React.FC<LoginProps> = ({ onModeSwitch }) => {
                           Signing in...
                         </>
                       ) : (
-                        "Get Started"
+                        "Login"
                       )}
                     </Button>
 

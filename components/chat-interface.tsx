@@ -35,6 +35,7 @@ interface ChatInterfaceProps {
   selectedDataset: DatasetInfo | null;
   requestType: "visualization" | "insight" | "search";
   onRequestTypeChange: (type: "visualization" | "insight" | "search") => void;
+  isInitialView?: boolean;
 }
 
 export function ChatInterface({
@@ -43,17 +44,20 @@ export function ChatInterface({
   selectedDataset,
   requestType,
   onRequestTypeChange,
+  isInitialView = false,
 }: ChatInterfaceProps) {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [showInitialView, setShowInitialView] = useState(isInitialView);
 
   const handleSend = async () => {
     if (!input.trim()) return;
 
     try {
       setIsLoading(true);
-      
+      setShowInitialView(false); // Hide initial view after first message
+
       // Add user message for all request types
       const userMessage: Message = {
         id: crypto.randomUUID(),
@@ -74,20 +78,17 @@ export function ChatInterface({
           type: "search",
         };
         setMessages((prev) => [...prev, searchMessage]);
-        setInput("");
-        return;
-      }
-
-      // Handle visualization and insight responses
-      const response = await onSendMessage(requestType, input.trim());
-      if (response) {
-        const assistantMessage: Message = {
-          id: crypto.randomUUID(),
-          role: "assistant",
-          content: typeof response === 'string' ? response : response.result || 'No content available',
-          type: requestType,
-        };
-        setMessages((prev) => [...prev, assistantMessage]);
+      } else {
+        const response = await onSendMessage(requestType, input.trim());
+        if (response) {
+          const assistantMessage: Message = {
+            id: crypto.randomUUID(),
+            role: "assistant",
+            content: typeof response === 'string' ? response : response.result || 'No content available',
+            type: requestType,
+          };
+          setMessages((prev) => [...prev, assistantMessage]);
+        }
       }
       setInput("");
     } catch (error) {
@@ -153,75 +154,101 @@ export function ChatInterface({
 
   return (
     <div className="flex flex-col h-full">
-      <ScrollArea className="flex-1 p-4">
-        {messages.map((message) => (
-          <div
-            key={message.id}
-            className={`mb-4 ${message.role === "user" ? "text-right" : "text-left"}`}
-          >
-            <div
-              className={`inline-block p-2 rounded-lg ${
-                message.role === "user"
-                  ? "bg-primary text-primary-foreground"
-                  : "bg-muted"
-              }`}
-            >
-              {renderMessage(message)}
+      {showInitialView ? (
+        <div className="flex-1 flex flex-col items-center justify-center p-4">
+          <h1 className="text-4xl font-bold mb-8 bg-gradient-to-r from-[#00caeb] to-[#df3f8b] bg-clip-text text-transparent">
+            What can I help with?
+          </h1>
+          
+          <div className="w-full max-w-3xl">
+            <div className="flex gap-2 mb-6">
+              <Select
+                value={requestType}
+                onValueChange={(value: "visualization" | "insight" | "search") => {
+                  onRequestTypeChange(value);
+                }}
+              >
+                <SelectTrigger className="w-[180px]">
+                  <SelectValue placeholder="Select request type" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="visualization">Visualization</SelectItem>
+                  <SelectItem value="insight">Insight</SelectItem>
+                  <SelectItem value="search">Search Dataset</SelectItem>
+                </SelectContent>
+              </Select>
+
+              <Input
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                placeholder="Ask anything..."
+                onKeyDown={(e) => e.key === "Enter" && handleSend()}
+                className="flex-1"
+              />
+              <Button 
+                onClick={handleSend} 
+                disabled={isLoading}
+                className="bg-blue-500"
+              >
+                {isLoading ? "Sending..." : "Send"}
+              </Button>
             </div>
           </div>
-        ))}
-      </ScrollArea>
-
-      <div className="flex p-4">
-        <Select
-          value={requestType}
-          onValueChange={(value: "visualization" | "insight" | "search") => {
-            onRequestTypeChange(value);
-          }}
-        >
-          <SelectTrigger className="w-[180px] mr-2">
-            <SelectValue placeholder="Select request type" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="visualization">Visualization</SelectItem>
-            <SelectItem value="insight">Insight</SelectItem>
-            <SelectItem value="search">Search Dataset</SelectItem>
-          </SelectContent>
-        </Select>
-
-        <Input
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          placeholder={
-            requestType === "search"
-              ? "Search for economic datasets..."
-              : selectedDataset
-              ? placeholder
-              : "Please select a dataset first"
-          }
-          onKeyDown={(e) => e.key === "Enter" && handleSend()}
-          className="flex-1 mr-2"
-          disabled={
-            (requestType !== "search" && !selectedDataset) || 
-            (requestType === "search" && selectedDataset)
-          }
-        />
-        <Button 
-          onClick={handleSend} 
-          disabled={
-            (requestType !== "search" && !selectedDataset) || 
-            (requestType === "search" && selectedDataset) ||
-            isLoading
-          }
-        >
-          {isLoading ? "Sending..." : "Send"}
-        </Button>
-      </div>
-
-      {selectedDataset && requestType !== "search" && (
-        <div className="px-4 py-2 bg-muted text-sm">
-          Selected dataset: {selectedDataset.filename}
         </div>
+      ) : (
+        <>
+          <ScrollArea className="flex-1 p-4">
+            {messages.map((message) => (
+              <div
+                key={message.id}
+                className={`mb-4 ${message.role === "user" ? "text-right" : "text-left"}`}
+              >
+                <div
+                  className={`inline-block p-2 rounded-lg ${
+                    message.role === "user"
+                      ? "bg-primary text-primary-foreground"
+                      : "bg-muted"
+                  }`}
+                >
+                  {renderMessage(message)}
+                </div>
+              </div>
+            ))}
+          </ScrollArea>
+
+          <div className="flex gap-2 p-4 border-t border-accent/20">
+            <Select
+              value={requestType}
+              onValueChange={(value: "visualization" | "insight" | "search") => {
+                onRequestTypeChange(value);
+              }}
+            >
+              <SelectTrigger className="w-[180px]">
+                <SelectValue placeholder="Select request type" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="visualization">Visualization</SelectItem>
+                <SelectItem value="insight">Insight</SelectItem>
+                <SelectItem value="search">Search Dataset</SelectItem>
+              </SelectContent>
+            </Select>
+
+            <Input
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              placeholder={placeholder}
+              onKeyDown={(e) => e.key === "Enter" && handleSend()}
+              className="flex-1"
+            />
+            <Button 
+              onClick={handleSend} 
+              disabled={isLoading}
+              className="bg-blue-500"
+            >
+              {isLoading ? "Sending..." : "Send"}
+            </Button>
+          </div>
+        </>
       )}
     </div>
   );

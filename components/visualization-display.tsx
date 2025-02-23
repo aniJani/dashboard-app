@@ -65,11 +65,11 @@ export function VisualizationDisplay({ visualizations, insights }: Visualization
   return (
     <div 
       ref={containerRef}
-      className="relative min-h-full animate-gradient bg-gradient-to-br from-[var(--color1)] via-[var(--color2)] to-[var(--color3)]"
+      className="relative min-h-full"
     >
       <div className="flex h-full">
         <ScrollArea className="flex-1 pr-4">
-          <h2 className="text-2xl font-bold mb-4">Visualizations</h2>
+          <h2 className="text-2xl font-bold mb-4 text-center text-gradient-to-r from-[#00caeb] to-[#df3f8b]">Visualizations</h2>
           <div className={`grid grid-cols-2 gap-6 ${
             visualizations.length <= 3 ? 'h-[calc(100vh-200px)]' : ''
           }`}>
@@ -124,7 +124,7 @@ export function VisualizationDisplay({ visualizations, insights }: Visualization
         </ScrollArea>
 
         <ScrollArea className="w-1/3 pl-4 border-l">
-          <h2 className="text-2xl font-bold mb-4">Insights</h2>
+          <h2 className="text-2xl font-bold mb-4 text-center text-{gradient-to-r from-[#00caeb] via-[#df3f8b] to-[#060885]}">Insights</h2>
           <div className="space-y-4">
             {insights.map((insight, index) => (
               <Card key={index}>
