@@ -42,8 +42,8 @@ A modern data Data Processing and Visualization platform that transforms complex
 
 1. Clone the repository
 ```bash
-git clone https://github.com/yourusername/infolaya-visualization-studio.git
-cd infolaya-visualization-studio
+git clone https://github.com/aniJani/dashboard-app.git
+cd dashboard-app
 ```
 
 2. Install dependencies
