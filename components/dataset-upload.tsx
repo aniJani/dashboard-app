@@ -31,7 +31,7 @@ export function DatasetUpload({ onUploadSuccess }: { onUploadSuccess: (datasetId
   return (
     <div className="space-y-4">
       <div className="grid w-full max-w-sm items-center gap-1.5">
-        <Label htmlFor="dataset">Dataset</Label>
+        <Label className="text-2xl font-bold  " htmlFor="dataset">Dataset</Label>
         <Input id="dataset" type="file" onChange={(e) => setFile(e.target.files?.[0] || null)} />
       </div>
       <Button onClick={handleUpload} disabled={!file || uploading}>

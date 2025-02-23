@@ -1,7 +1,6 @@
 // lib/api.ts
 
-const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8000";
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8000";
 
 /**
  * Helper function that retrieves the cached user ID from localStorage.
@@ -154,3 +153,68 @@ export async function getDatasetHead(datasetId: string): Promise<DatasetSummary>
   }
   return response.json();
 }
+
+// Add these functions
+export async function getPastVisualizations(datasetId: string): Promise<VisualizationResponse[]> {
+  const response = await fetch(`${API_BASE_URL}/api/dataset/visualizations?dataset_id=${datasetId}`);
+  if (!response.ok) {
+    throw new Error('Failed to fetch past visualizations');
+  }
+  return response.json();
+}
+
+export async function addToPastDatasets(datasetId: string): Promise<void> {
+  const response = await fetch(`${API_BASE_URL}/api/dataset/history`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ dataset_id: datasetId }),
+  });
+  if (!response.ok) {
+    throw new Error('Failed to add dataset to history');
+  }
+}
+
+export interface FredSeriesResult {
+  realtime_start: string;
+  realtime_end: string;
+  seriess: Array<{
+    id: string;
+    title: string;
+    frequency: string;
+    frequency_short: string;
+    units: string;
+    units_short: string;
+    seasonal_adjustment: string;
+    seasonal_adjustment_short: string;
+    observation_start: string;
+    observation_end: string;
+    last_updated: string;
+    popularity: number;
+    notes: string;
+  }>;
+}
+
+export const searchDatasets = async (query: string): Promise<FredSeriesResult> => {
+  if (!query.trim()) return { realtime_start: "", realtime_end: "", seriess: [] };
+  
+  try {
+    const url = `${API_BASE_URL}/api/fred/datasets?series_id=${encodeURIComponent(query)}&limit=5`;
+    const response = await fetch(url, {
+      headers: {
+        'accept': 'application/json'
+      }
+    });
+    
+    if (!response.ok) {
+      throw new Error(`API error: ${response.status}`);
+    }
+    
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Search error:', error);
+    return { realtime_start: "", realtime_end: "", seriess: [] };
+  }
+};

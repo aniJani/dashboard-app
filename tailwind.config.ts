@@ -11,39 +11,39 @@ const config: Config = {
   theme: {
   	extend: {
   		colors: {
-  			background: 'hsl(var(--background))',
-  			foreground: 'hsl(var(--foreground))',
+  			background: "#000000",
+  			foreground: "#ffffff",
   			card: {
-  				DEFAULT: 'hsl(var(--card))',
-  				foreground: 'hsl(var(--card-foreground))'
+  				DEFAULT: "hsl(var(--card))",
+  				foreground: "hsl(var(--card-foreground))"
   			},
   			popover: {
-  				DEFAULT: 'hsl(var(--popover))',
-  				foreground: 'hsl(var(--popover-foreground))'
+  				DEFAULT: "hsl(var(--popover))",
+  				foreground: "hsl(var(--popover-foreground))"
   			},
   			primary: {
-  				DEFAULT: 'hsl(var(--primary))',
-  				foreground: 'hsl(var(--primary-foreground))'
+  				DEFAULT: "#00caeb",
+  				foreground: "#ffffff"
   			},
   			secondary: {
-  				DEFAULT: 'hsl(var(--secondary))',
-  				foreground: 'hsl(var(--secondary-foreground))'
-  			},
-  			muted: {
-  				DEFAULT: 'hsl(var(--muted))',
-  				foreground: 'hsl(var(--muted-foreground))'
+  				DEFAULT: "#df3f8b",
+  				foreground: "#ffffff"
   			},
   			accent: {
-  				DEFAULT: 'hsl(var(--accent))',
-  				foreground: 'hsl(var(--accent-foreground))'
+  				DEFAULT: "#060885",
+  				foreground: "#ffffff"
+  			},
+  			muted: {
+  				DEFAULT: "rgba(255, 255, 255, 0.1)",
+  				foreground: "rgba(255, 255, 255, 0.5)"
   			},
   			destructive: {
-  				DEFAULT: 'hsl(var(--destructive))',
-  				foreground: 'hsl(var(--destructive-foreground))'
+  				DEFAULT: "#df3f8b",
+  				foreground: "#ffffff"
   			},
-  			border: 'hsl(var(--border))',
-  			input: 'hsl(var(--input))',
-  			ring: 'hsl(var(--ring))',
+  			border: "rgba(255, 255, 255, 0.1)",
+  			input: "rgba(255, 255, 255, 0.1)",
+  			ring: "#00caeb",
   			chart: {
   				'1': 'hsl(var(--chart-1))',
   				'2': 'hsl(var(--chart-2))',
@@ -83,12 +83,85 @@ const config: Config = {
   				to: {
   					height: '0'
   				}
-  			}
+  			},
+  			'tilt': {
+  				'0%, 50%, 100%': {
+  					transform: 'rotate(0deg)',
+  				},
+  				'25%': {
+  					transform: 'rotate(0.5deg)',
+  				},
+  				'75%': {
+  					transform: 'rotate(-0.5deg)',
+  				},
+  			},
+  			'tilt-slow': {
+  				'0%, 50%, 100%': {
+  					transform: 'rotate(0deg) scale(1)',
+  				},
+  				'25%': {
+  					transform: 'rotate(0.5deg) scale(1.05)',
+  				},
+  				'75%': {
+  					transform: 'rotate(-0.5deg) scale(0.95)',
+  				},
+  			},
+  			'floating': {
+  				'0%, 100%': {
+  					transform: 'translateY(0)',
+  				},
+  				'50%': {
+  					transform: 'translateY(-10px)',
+  				},
+  			},
+  			'spin-slow': {
+  				'0%': { transform: 'rotate(0deg)' },
+  				'100%': { transform: 'rotate(360deg)' }
+  			},
+  			'draw': {
+  				'0%': {
+  					strokeDashoffset: '1000',
+  					opacity: '0',
+  				},
+  				'100%': {
+  					strokeDashoffset: '0',
+  					opacity: '1',
+  				},
+  			},
+  			'ping': {
+  				'75%, 100%': {
+  					transform: 'scale(2)',
+  					opacity: '0',
+  				},
+  			},
+  			'glow': {
+  				'0%, 100%': {
+  					filter: 'brightness(1)',
+  				},
+  				'50%': {
+  					filter: 'brightness(1.2)',
+  				},
+  			},
   		},
   		animation: {
   			'accordion-down': 'accordion-down 0.2s ease-out',
-  			'accordion-up': 'accordion-up 0.2s ease-out'
-  		}
+  			'accordion-up': 'accordion-up 0.2s ease-out',
+  			'tilt': 'tilt 10s infinite linear',
+  			'tilt-slow': 'tilt-slow 15s infinite linear',
+  			'floating': 'floating 3s ease-in-out infinite',
+  			'spin-slow': 'spin-slow 30s linear infinite',
+  			'draw': 'draw 2s ease-out forwards',
+  			'ping': 'ping 2s cubic-bezier(0, 0, 0.2, 1) infinite',
+  			'glow': 'glow 2s ease-in-out infinite',
+  		},
+  		backgroundImage: {
+  			'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
+  			'gradient-conic': 'conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))',
+  			'gradient-palm': "url('/palm-bg.jpg')"
+  		},
+  		fontFamily: {
+  			'space-grotesk': ['Space Grotesk', 'sans-serif'],
+  		},
   	}
   },
   plugins: [require("tailwindcss-animate")],

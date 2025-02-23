@@ -49,7 +49,7 @@ export default function InsightsPage() {
           }}
         />
       ) : (
-        <ChatInterface onSendMessage={handleInsightsRequest} placeholder="Ask for business insights..." />
+        <ChatInterface onSendMessage={handleInsightsRequest} placeholder="Ask for business insights..." selectedDataset={null} />
       )}
     </div>
   )
