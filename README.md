@@ -1,17 +1,14 @@
 
 # Infolaya Visualization Studio
 
-A modern data visualization platform that transforms complex data into compelling visual narratives. Built with Next.js, TypeScript, and Firebase.
+A modern data Data Processing and Visualization platform that transforms complex data into compelling visual narratives. Built with Next.js, TypeScript, and Firebase.
 
-![Infolaya Studio](public/preview.png)
 
 ## Features
 
 ### 🎨 Interactive Visualizations
-- Time Series Analysis with interactive line charts
-- Comparative Analysis using dynamic bar charts
-- Part-to-Whole Analysis through pie charts
-- Real-time data visualization generation
+- Time Series Analysis with interactive charts from Matplotlib
+- Real-time data visualization generation based on user's dataset
 
 ### 🤖 AI-Powered Insights
 - Natural language data querying
@@ -21,7 +18,7 @@ A modern data visualization platform that transforms complex data into compellin
 
 ### 🔍 Dataset Management
 - Comprehensive dataset search
-- Real-time data processing
+- Real-time data processing and visualization
 - Multiple data source integration
 - Secure data handling
 
