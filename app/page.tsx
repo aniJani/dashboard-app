@@ -16,6 +16,7 @@ import {
   listDatasets,
   rerunVisualizations,
   getDatasetHead,
+  searchDatasets,
 } from "@/lib/api";
 import {
   Upload,
@@ -45,6 +46,7 @@ export default function Home() {
   const [isSidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [selectedDatasetPreview, setSelectedDatasetPreview] =
     useState<DatasetSummary | null>(null);
+  const [requestType, setRequestType] = useState<"visualization" | "insight" | "search">("visualization");
 
   // Subscribe to Firebase auth state changes
   useEffect(() => {
@@ -82,21 +84,35 @@ export default function Home() {
   };
 
   const handleDatasetSelect = async (dataset: DatasetInfo | null) => {
+    // Only allow dataset selection in visualization or insight mode
+    if (requestType === "search") {
+      return;
+    }
+    
     setSelectedDataset(dataset);
     if (dataset) {
       try {
         const rerunResults = await rerunVisualizations(dataset.id);
         setVisualizations(rerunResults);
-        setInsights([]); // Clear insights when a new dataset is selected
+        setInsights([]);
 
-        // Fetch dataset preview
         const previewData = await getDatasetHead(dataset.id);
         setSelectedDatasetPreview(previewData);
       } catch (error) {
         console.error("Failed to fetch dataset data:", error);
       }
     } else {
-      // Clear visualizations and insights when deselecting
+      setVisualizations([]);
+      setInsights([]);
+      setSelectedDatasetPreview(null);
+    }
+  };
+
+  const handleRequestTypeChange = (type: "visualization" | "insight" | "search") => {
+    setRequestType(type);
+    // Clear selected dataset when switching to search mode
+    if (type === "search") {
+      setSelectedDataset(null);
       setVisualizations([]);
       setInsights([]);
       setSelectedDatasetPreview(null);
@@ -104,11 +120,22 @@ export default function Home() {
   };
 
   const handleRequest = async (
-    type: "visualization" | "insight",
+    type: "visualization" | "insight" | "search",
     prompt: string
   ) => {
-    if (!selectedDataset) return "Please select a dataset first.";
+    if (!selectedDataset && type !== "search") {
+      return "Please select a dataset first";
+    }
+
     try {
+      if (type === "search") {
+        const searchResults = await searchDatasets(prompt);
+        return {
+          type: "search",
+          results: searchResults
+        };
+      }
+
       if (type === "visualization") {
         const result = await generateVisualization(selectedDataset.id, prompt);
         setVisualizations((prev) => [result, ...prev]);
@@ -119,8 +146,8 @@ export default function Home() {
         return insight;
       }
     } catch (error) {
-      console.error(`Error generating ${type}:`, error);
-      return `An error occurred while generating the ${type}.`;
+      console.error(`Error in ${type} request:`, error);
+      return `An error occurred while processing your ${type} request.`;
     }
   };
 
@@ -256,10 +283,12 @@ export default function Home() {
                 onSendMessage={handleRequest}
                 placeholder={
                   selectedDataset
-                    ? "Ask for a visualization or insight..."
+                    ? "Ask for a visualization or insight or search for a dataset..."
                     : "Select a dataset to begin"
                 }
                 selectedDataset={selectedDataset}
+                requestType={requestType}
+                onRequestTypeChange={handleRequestTypeChange}
               />
             </CardContent>
           </Card>
