@@ -122,9 +122,7 @@ export function ChatInterface({
                     layout="responsive"
                   />
                   {message.content.description && (
-                    <p className="mt-2 text-sm">
-                      {message.content.description}
-                    </p>
+                    <p className="mt-2 text-sm">{message.content.description}</p>
                   )}
                 </div>
               )}

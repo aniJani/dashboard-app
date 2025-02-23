@@ -154,3 +154,25 @@ export async function getDatasetHead(datasetId: string): Promise<DatasetSummary>
   }
   return response.json();
 }
+
+// Add these functions
+export async function getPastVisualizations(datasetId: string): Promise<VisualizationResponse[]> {
+  const response = await fetch(`${API_BASE_URL}/api/dataset/visualizations?dataset_id=${datasetId}`);
+  if (!response.ok) {
+    throw new Error('Failed to fetch past visualizations');
+  }
+  return response.json();
+}
+
+export async function addToPastDatasets(datasetId: string): Promise<void> {
+  const response = await fetch(`${API_BASE_URL}/api/dataset/history`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ dataset_id: datasetId }),
+  });
+  if (!response.ok) {
+    throw new Error('Failed to add dataset to history');
+  }
+}

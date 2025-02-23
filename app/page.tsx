@@ -28,6 +28,7 @@ import { auth, onAuthStateChanged, signOut } from "@/lib/firebase";
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import type { DatasetSummary } from "@/lib/api";
 
 export default function Home() {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
@@ -42,7 +43,8 @@ export default function Home() {
   const [datasetsLoading, setDatasetsLoading] = useState<boolean>(false);
   const [authMode, setAuthMode] = useState<"login" | "signup">("login");
   const [isSidebarCollapsed, setSidebarCollapsed] = useState(false);
-  const [selectedDatasetPreview, setSelectedDatasetPreview] = useState<DatasetSummary | null>(null);
+  const [selectedDatasetPreview, setSelectedDatasetPreview] =
+    useState<DatasetSummary | null>(null);
 
   // Subscribe to Firebase auth state changes
   useEffect(() => {
@@ -79,19 +81,25 @@ export default function Home() {
     }
   };
 
-  const handleDatasetSelect = async (dataset: DatasetInfo) => {
+  const handleDatasetSelect = async (dataset: DatasetInfo | null) => {
     setSelectedDataset(dataset);
-    try {
-      // Fetch visualizations
-      const rerunResults = await rerunVisualizations(dataset.id);
-      setVisualizations(rerunResults);
-      setInsights([]); // Clear insights when a new dataset is selected
-      
-      // Fetch dataset preview
-      const previewData = await getDatasetHead(dataset.id);
-      setSelectedDatasetPreview(previewData);
-    } catch (error) {
-      console.error("Failed to fetch dataset data:", error);
+    if (dataset) {
+      try {
+        const rerunResults = await rerunVisualizations(dataset.id);
+        setVisualizations(rerunResults);
+        setInsights([]); // Clear insights when a new dataset is selected
+
+        // Fetch dataset preview
+        const previewData = await getDatasetHead(dataset.id);
+        setSelectedDatasetPreview(previewData);
+      } catch (error) {
+        console.error("Failed to fetch dataset data:", error);
+      }
+    } else {
+      // Clear visualizations and insights when deselecting
+      setVisualizations([]);
+      setInsights([]);
+      setSelectedDatasetPreview(null);
     }
   };
 
@@ -131,57 +139,48 @@ export default function Home() {
     }
   };
 
+  const toggleAuthMode = () => {
+    setAuthMode((prev) => (prev === "login" ? "signup" : "login"));
+  };
+
   if (!isAuthenticated) {
     return (
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        className="min-h-screen flex flex-col items-center justify-center gap-4 bg-gradient-to-br from-background via-secondary/5 to-background"
-      >
-        <motion.div
-          initial={{ y: -20 }}
-          animate={{ y: 0 }}
-          className="w-full max-w-md p-8 space-y-6"
-        >
-          <h1 className="text-4xl font-bold text-center bg-clip-text text-transparent bg-gradient-to-r from-primary to-secondary">
-            Data Visualization Studio
-          </h1>
-          {authMode === "login" ? <Login /> : <Signup />}
-          <button
-            className="w-full text-center text-muted-foreground hover:text-primary transition-colors"
-            onClick={() =>
-              setAuthMode((prev) => (prev === "login" ? "signup" : "login"))
-            }
-          >
-            {authMode === "login"
-              ? "Don't have an account? Sign Up"
-              : "Already have an account? Log In"}
-          </button>
-        </motion.div>
-      </motion.div>
+      <div className="flex flex-col items-center justify-center gap-4 bg-gradient-to-br from-background via-secondary/5 to-background p-4">
+        <div className="w-full">
+          {authMode === "login" ? (
+            <Login onModeSwitch={toggleAuthMode} />
+          ) : (
+            <Signup onModeSwitch={toggleAuthMode} />
+          )}
+        </div>
+      </div>
     );
   }
 
   return (
-    <div className="flex h-screen bg-background">
+    <div className="flex flex-col lg:flex-row h-screen bg-background overflow-hidden">
+      {/* Sidebar */}
       <motion.div
         initial={false}
-        animate={{ width: isSidebarCollapsed ? "64px" : "25%" }}
-        className="relative border-r bg-card/50 backdrop-blur-sm"
+        animate={{ 
+          width: isSidebarCollapsed ? "64px" : "100%",
+          flex: isSidebarCollapsed ? "0 0 64px" : "0 0 25%"
+        }}
+        className="relative border-r bg-card/50 backdrop-blur-sm h-screen overflow-hidden"
       >
         <Button
           variant="ghost"
           size="icon"
-          className="absolute -right-4 top-1/2 transform -translate-y-1/2 z-10"
+          className="absolute -right-4 top-1/2 transform -translate-y-1/2 z-10 hidden lg:flex"
           onClick={() => setSidebarCollapsed(!isSidebarCollapsed)}
         >
           {isSidebarCollapsed ? <ChevronRight /> : <ChevronLeft />}
         </Button>
 
-        <div className="p-4 space-y-4">
-          <div className="flex items-center justify-between">
+        <div className="p-4 h-full flex flex-col">
+          <div className="flex items-center justify-between mb-4">
             {!isSidebarCollapsed && (
-              <h2 className="text-2xl font-bold">Datasets</h2>
+              <h2 className="text-xl font-bold">Datasets</h2>
             )}
             <Button variant="ghost" size="icon" onClick={handleLogout}>
               <LogOut className="h-4 w-4" />
@@ -194,26 +193,23 @@ export default function Home() {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                className="space-y-4"
+                className="flex-1 overflow-hidden flex flex-col"
               >
-                <Card>
-                  <CardContent className="p-3">
-                    <DatasetUpload
-                      onUploadSuccess={() => {
-                        fetchDatasets();
-                      }}
-                    />
-                    {datasetsLoading ? (
-                      <p>Loading datasets...</p>
-                    ) : (
-                      <div className="h-[calc(100vh-500px)] overflow-auto">
+                <Card className="flex-1 overflow-hidden">
+                  <CardContent className="p-3 h-full flex flex-col">
+                    <DatasetUpload onUploadSuccess={fetchDatasets} />
+                    
+                    <div className="flex-1 overflow-auto mt-4">
+                      {datasetsLoading ? (
+                        <p>Loading datasets...</p>
+                      ) : (
                         <DatasetList
                           datasets={datasets}
                           onSelect={handleDatasetSelect}
                           selectedDataset={selectedDataset}
                         />
-                      </div>
-                    )}
+                      )}
+                    </div>
 
                     {selectedDataset && (
                       <div className="h-[200px] overflow-auto mt-4">
@@ -236,8 +232,9 @@ export default function Home() {
         </div>
       </motion.div>
 
+      {/* Main Content */}
       <motion.div layout className="flex-1 flex flex-col overflow-hidden">
-        <div className="flex-1 p-6 overflow-auto">
+        <div className="flex-1 p-4 lg:p-6 overflow-auto">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}

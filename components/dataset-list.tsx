@@ -3,9 +3,9 @@ import type { DatasetInfo } from "@/lib/api"
 import { Database, X } from "lucide-react"
 
 interface DatasetListProps {
-  datasets: DatasetInfo[]
-  selectedDataset: DatasetInfo | null
-  onSelect: (dataset: DatasetInfo | null) => void
+  datasets: DatasetInfo[];
+  selectedDataset: DatasetInfo | null;
+  onSelect: (dataset: DatasetInfo | null) => void;
 }
 
 export function DatasetList({ datasets, selectedDataset, onSelect }: DatasetListProps) {
