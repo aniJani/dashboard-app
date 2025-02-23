@@ -7,7 +7,7 @@ import { cn } from "@/lib/utils"
 const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
-  title: "Dashboard App",
+  title: "Infolaya",
   description: "Visualization and Insights Dashboard",
     generator: 'v0.dev'
 }
@@ -22,6 +22,7 @@ export default function RootLayout({
       <body className={cn("min-h-screen bg-background font-sans antialiased", inter.className)}>
         <div className="relative flex min-h-screen flex-col">
           <main className="flex-1">{children}</main>
+          <link rel="icon" href="/favicon.png" />
         </div>
       </body>
     </html>
