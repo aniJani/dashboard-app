@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { DatasetSummary, getDatasetHead } from "@/lib/api";
+import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Table,
   TableBody,
@@ -10,9 +10,9 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import { DatasetSummary, getDatasetHead } from "@/lib/api";
 import { motion } from "framer-motion";
+import { useEffect, useState } from "react";
 
 interface DatasetPreviewProps {
   datasetId: string;
@@ -67,7 +67,7 @@ export function DatasetPreview({ datasetId }: DatasetPreviewProps) {
     return null;
   }
 
-  const sampleRows = Array.from({ length: 5 }, (_, index) => {
+  const sampleRows = Array.from({ length: 7 }, (_, index) => {
     const row: Record<string, any> = {};
     summary.columns.forEach((column) => {
       row[column] = summary.sample[column][index];
@@ -113,7 +113,7 @@ export function DatasetPreview({ datasetId }: DatasetPreviewProps) {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {sampleRows.slice(0, 3).map((row, idx) => (
+                {sampleRows.slice(0, 5).map((row, idx) => (
                   <TableRow key={idx}>
                     {summary.columns.map((column) => (
                       <TableCell key={column} className="p-1">
