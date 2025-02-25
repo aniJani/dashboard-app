@@ -27,6 +27,64 @@ body {
     stroke-dashoffset: 1000;
     animation: draw 2s ease-out forwards;
   }
+
+  /* Responsive padding utility classes */
+  .responsive-container {
+    @apply px-4 sm:px-6 lg:px-8 mx-auto max-w-7xl;
+  }
+  
+  /* Responsive typography */
+  .h1-responsive {
+    @apply text-3xl sm:text-4xl lg:text-5xl font-bold;
+  }
+  
+  .h2-responsive {
+    @apply text-2xl sm:text-3xl lg:text-4xl font-semibold;
+  }
+  
+  .text-responsive {
+    @apply text-sm sm:text-base lg:text-lg;
+  }
+
+  /* Hide scrollbar but allow scrolling */
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+  
+  /* Safe area insets for modern iOS devices */
+  .safe-padding-bottom {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+
+  .grid-responsive {
+    @apply grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4;
+  }
+  
+  .flex-responsive {
+    @apply flex-col sm:flex-row;
+  }
+  
+  .padding-responsive {
+    @apply p-4 sm:p-6 lg:p-8;
+  }
+
+  /* Add these new utilities */
+  .sidebar-slide {
+    @apply fixed inset-y-0 left-0 transform transition-transform duration-300 ease-in-out lg:relative lg:translate-x-0;
+  }
+  
+  .sidebar-open {
+    @apply translate-x-0;
+  }
+  
+  .sidebar-closed {
+    @apply -translate-x-full;
+  }
 }
 
 @layer base {
@@ -59,6 +117,10 @@ body {
     --sidebar-accent-foreground: 240 5.9% 10%;
     --sidebar-border: 220 13% 91%;
     --sidebar-ring: 217.2 91.2% 59.8%;
+    --screen-sm: 640px;
+    --screen-md: 768px;
+    --screen-lg: 1024px;
+    --screen-xl: 1280px;
   }
   .dark {
     --background: 0 0% 3.9%;
@@ -118,3 +180,35 @@ body {
 .animate-pulse-glow {
   animation: pulse-glow 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
+
+/* Base styles */
+html {
+  -webkit-text-size-adjust: 100%;
+  touch-action: manipulation;
+}
+
+body {
+  @apply antialiased;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+/* Add responsive container queries */
+/* @container (min-width: 640px) {
+  .container-sm {
+    @apply grid-cols-2;
+  }
+}
+
+@container (min-width: 768px) {
+  .container-md {
+    @apply grid-cols-3;
+  }
+}
+
+@container (min-width: 1024px) {
+  .container-lg {
+    @apply grid-cols-4;
+  }
+} */
