@@ -2,7 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 
-@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap");
 
 body {
   font-family: Arial, Helvetica, sans-serif;
@@ -13,11 +13,11 @@ body {
     text-wrap: balance;
   }
   .glow {
-    box-shadow: 0 0 10px theme('colors.primary.DEFAULT'),
-                0 0 20px theme('colors.secondary.DEFAULT'),
-                0 0 30px theme('colors.accent.DEFAULT');
+    box-shadow: 0 0 10px theme("colors.primary.DEFAULT"),
+      0 0 20px theme("colors.secondary.DEFAULT"),
+      0 0 30px theme("colors.accent.DEFAULT");
   }
-  
+
   .glow-text {
     text-shadow: 0 0 10px currentColor;
   }
@@ -32,16 +32,16 @@ body {
   .responsive-container {
     @apply px-4 sm:px-6 lg:px-8 mx-auto max-w-7xl;
   }
-  
+
   /* Responsive typography */
   .h1-responsive {
     @apply text-3xl sm:text-4xl lg:text-5xl font-bold;
   }
-  
+
   .h2-responsive {
     @apply text-2xl sm:text-3xl lg:text-4xl font-semibold;
   }
-  
+
   .text-responsive {
     @apply text-sm sm:text-base lg:text-lg;
   }
@@ -51,11 +51,11 @@ body {
     -ms-overflow-style: none;
     scrollbar-width: none;
   }
-  
+
   .scrollbar-hide::-webkit-scrollbar {
     display: none;
   }
-  
+
   /* Safe area insets for modern iOS devices */
   .safe-padding-bottom {
     padding-bottom: env(safe-area-inset-bottom);
@@ -64,11 +64,11 @@ body {
   .grid-responsive {
     @apply grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4;
   }
-  
+
   .flex-responsive {
     @apply flex-col sm:flex-row;
   }
-  
+
   .padding-responsive {
     @apply p-4 sm:p-6 lg:p-8;
   }
@@ -77,11 +77,11 @@ body {
   .sidebar-slide {
     @apply fixed inset-y-0 left-0 transform transition-transform duration-300 ease-in-out lg:relative lg:translate-x-0;
   }
-  
+
   .sidebar-open {
     @apply translate-x-0;
   }
-  
+
   .sidebar-closed {
     @apply -translate-x-full;
   }
@@ -169,7 +169,8 @@ body {
 
 /* Add this if you want the glow to pulse */
 @keyframes pulse-glow {
-  0%, 100% {
+  0%,
+  100% {
     opacity: 1;
   }
   50% {
@@ -212,3 +213,13 @@ body {
     @apply grid-cols-4;
   }
 } */
+
+/* Add this to your existing CSS */
+.cursor-ns-resize {
+  cursor: ns-resize;
+}
+
+body.resizing {
+  cursor: ns-resize !important;
+  user-select: none;
+}

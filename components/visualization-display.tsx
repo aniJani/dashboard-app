@@ -7,16 +7,28 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Maximize2, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useGradientAnimation } from "@/hooks/useGradientAnimation";
 import { cn } from "@/lib/utils";
+import { format } from "date-fns";
+
+interface ConversationMessage {
+  role: "user" | "assistant";
+  content: string;
+  timestamp: Date;
+}
 
 interface VisualizationDisplayProps {
   visualizations: VisualizationResponse[];
   insights: string[];
+  conversationHistory?: ConversationMessage[]; // Keep prop but don't use it for display
 }
 
-export function VisualizationDisplay({ visualizations, insights }: VisualizationDisplayProps) {
+export function VisualizationDisplay({
+  visualizations,
+  insights,
+  conversationHistory = [], // Keep for prop compatibility
+}: VisualizationDisplayProps) {
   const [selectedViz, setSelectedViz] = useState<number | null>(null);
   const [scales, setScales] = useState<{ [key: number]: number }>({});
   const containerRef = useGradientAnimation();
@@ -28,16 +40,16 @@ export function VisualizationDisplay({ visualizations, insights }: Visualization
     const handleMouseMove = (moveEvent: MouseEvent) => {
       const deltaY = startY - moveEvent.clientY;
       const newScale = Math.max(0.5, Math.min(3, startScale + deltaY * 0.01));
-      setScales(prev => ({ ...prev, [index]: newScale }));
+      setScales((prev) => ({ ...prev, [index]: newScale }));
     };
 
     const handleMouseUp = () => {
-      document.removeEventListener('mousemove', handleMouseMove);
-      document.removeEventListener('mouseup', handleMouseUp);
+      document.removeEventListener("mousemove", handleMouseMove);
+      document.removeEventListener("mouseup", handleMouseUp);
     };
 
-    document.addEventListener('mousemove', handleMouseMove);
-    document.addEventListener('mouseup', handleMouseUp);
+    document.addEventListener("mousemove", handleMouseMove);
+    document.addEventListener("mouseup", handleMouseUp);
   };
 
   const getGridItemClass = (index: number, totalItems: number) => {
@@ -60,28 +72,51 @@ export function VisualizationDisplay({ visualizations, insights }: Visualization
     return "col-span-1 h-[300px]"; // Each visualization takes a quarter of the space
   };
 
+  // Remove conversation history display section and go back to original display logic
+
+  // If no visualizations or insights, show empty state
+  if (visualizations.length === 0 && insights.length === 0) {
+    return (
+      <div className="h-full flex items-center justify-center text-center">
+        <div className="max-w-md mx-auto p-6">
+          <h2 className="text-2xl font-bold mb-2">No visualizations yet</h2>
+          <p className="text-muted-foreground">
+            Ask a question about your dataset to generate visualizations and
+            insights.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  // Original display for visualizations and insights
   return (
     <div className="h-full flex flex-col gap-4">
-      
-
       {/* Content Area */}
       <div className="flex-1 grid grid-cols-[60%_40%] gap-4">
         {/* Visualizations */}
         <div className="h-full">
-          <h2 className="text-2xl font-bold text-center text-gradient-to-r from-[#00caeb] to-[#df3f8b]">Visualizations</h2>
+          <h2 className="text-2xl font-bold text-center text-gradient-to-r from-[#00caeb] to-[#df3f8b]">
+            Visualizations
+          </h2>
           <ScrollArea className="h-full rounded-lg border border-accent/20 p-4">
-            <div className={cn(
-              "grid gap-4",
-              visualizations.length <= 1 ? "grid-cols-1" : "grid-cols-2",
-              "auto-rows-min" // Allow rows to adjust based on content
-            )}>
+            <div
+              className={cn(
+                "grid gap-4",
+                visualizations.length <= 1 ? "grid-cols-1" : "grid-cols-2",
+                "auto-rows-min" // Allow rows to adjust based on content
+              )}
+            >
               {visualizations.map((viz, index) => (
                 <motion.div
                   key={index}
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: Math.min(index, 3) * 0.1 }}
-                  className={cn("relative", getGridItemClass(index, visualizations.length))}
+                  className={cn(
+                    "relative",
+                    getGridItemClass(index, visualizations.length)
+                  )}
                 >
                   <Card className="group relative h-full overflow-hidden hover:shadow-lg transition-shadow">
                     <CardContent className="p-4 h-full">
@@ -89,7 +124,7 @@ export function VisualizationDisplay({ visualizations, insights }: Visualization
                         className="relative cursor-move h-full"
                         style={{
                           scale: scales[index] || 1,
-                          transformOrigin: "center center"
+                          transformOrigin: "center center",
                         }}
                         onMouseDown={(e) => handleDrag(e, index)}
                       >
@@ -115,7 +150,9 @@ export function VisualizationDisplay({ visualizations, insights }: Visualization
 
                       {viz.description && (
                         <div className="absolute bottom-0 left-0 right-0 p-2 bg-background/80 backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-opacity">
-                          <p className="text-sm text-foreground">{viz.description}</p>
+                          <p className="text-sm text-foreground">
+                            {viz.description}
+                          </p>
                         </div>
                       )}
                     </CardContent>
@@ -128,7 +165,9 @@ export function VisualizationDisplay({ visualizations, insights }: Visualization
 
         {/* Insights */}
         <div className="h-full">
-          <h2 className="text-2xl font-bold text-center text-gradient-to-r from-[#00caeb] to-[#df3f8b]">Insights</h2>
+          <h2 className="text-2xl font-bold text-center text-gradient-to-r from-[#00caeb] to-[#df3f8b]">
+            Insights
+          </h2>
           <ScrollArea className="h-full rounded-lg border border-accent/20 p-4">
             <div className="space-y-4">
               {insights.map((insight, index) => (
@@ -162,7 +201,7 @@ export function VisualizationDisplay({ visualizations, insights }: Visualization
               animate={{ scale: 1 }}
               exit={{ scale: 0.9 }}
               className="relative max-w-7xl w-full h-[80vh] bg-card rounded-lg p-4"
-              onClick={e => e.stopPropagation()}
+              onClick={(e) => e.stopPropagation()}
             >
               <Button
                 variant="ghost"
@@ -177,7 +216,7 @@ export function VisualizationDisplay({ visualizations, insights }: Visualization
                 className="relative cursor-move h-full"
                 style={{
                   scale: scales[selectedViz] || 1,
-                  transformOrigin: "center center"
+                  transformOrigin: "center center",
                 }}
                 onMouseDown={(e) => handleDrag(e, selectedViz)}
               >
@@ -192,7 +231,7 @@ export function VisualizationDisplay({ visualizations, insights }: Visualization
               </motion.div>
 
               {visualizations[selectedViz].description && (
-                <motion.p 
+                <motion.p
                   className="absolute bottom-0 left-0 right-0 p-4 bg-background/80 backdrop-blur-sm text-lg"
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
